@@ -1,4 +1,3 @@
-require("console.table");
 const moment = require("moment");
 const express = require("express");
 const router = express.Router();
@@ -14,12 +13,7 @@ const parseData = (data) => {
 
 router.get("/", (req, res) => {
   employee.getAll((err, data) => {
-    const newData = data.map(emp => {
-      const empStartDate = moment(emp.startDate, 'M/D/YYYY');
-      emp.daysWorked = moment().diff(empStartDate, 'days');
-      return emp;
-    });
-    res.render("index", { employees: newData });
+    res.render("index", { employees: parseData(data) });
   });
 });
 
@@ -30,15 +24,12 @@ router.get("/api/employees/:id?", (req, res) => {
         console.log(err);
         return status(500).end();
       } else if(!data.length) {
-        // console.log(data);
         return res.json([]);
       }
-      // console.table(parseData(data));
       return res.json(parseData(data));
     });
   } else {
     employee.getAll((err, data) => {
-      // console.table(parseData(data));
       res.json(parseData(data));
     });
   }
@@ -54,7 +45,7 @@ router.post("/api/employees", (req, res) => {
     department: req.body.department,
     startDate: req.body.startDate
   };
-  employee.create(newEmp, (err, data) => {
+  employee.create(newEmp, (err) => {
       if(err) {
         console.log(err);
         return res.status(500).end();
@@ -64,7 +55,7 @@ router.post("/api/employees", (req, res) => {
 });
 
 router.put("/api/employees/:id", (req, res) => {
-  employee.update(req.params.id, req.body, (err, data) => {
+  employee.update(req.params.id, req.body, (err) => {
     if(err) {
       console.log(err);
       return res.status(500).end();
@@ -74,7 +65,7 @@ router.put("/api/employees/:id", (req, res) => {
 });
 
 router.delete("/api/employees/:id", (req, res) => {
-  employee.deleteById(req.params.id, (err, data) => {
+  employee.deleteById(req.params.id, (err) => {
     if(err) {
       console.log(err);
       return res.status(500).end();
